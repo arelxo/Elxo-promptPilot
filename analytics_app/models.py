@@ -10,7 +10,7 @@ class AnalyticsEvent(models.Model):
     estimated_cost = models.DecimalField(max_digits=12, decimal_places=6, default=0.0)
     latency_ms = models.IntegerField(default=0)
     status = models.CharField(max_length=50, default='success')
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
 
     def __str__(self):
         return f"Event {self.id} - {self.provider} - {self.status}"

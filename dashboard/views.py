@@ -9,7 +9,7 @@ class DashboardAPIView(APIView):
 
     def get(self, request):
         all_events = AnalyticsEvent.objects.filter(user=request.user)
-        events = all_events.order_by('-created_at')[:5]
+        events = all_events.select_related('prompt').order_by('-created_at')[:5]
         
         total_requests = all_events.count()
         total_tokens = sum(e.tokens_used for e in all_events)
