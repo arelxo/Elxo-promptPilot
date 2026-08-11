@@ -12,10 +12,12 @@ class BillingProfileView(APIView):
         profile, created = UserBillingProfile.objects.get_or_create(user=request.user)
         
         # Calculate real dynamic usage statistics from AnalyticsEvent table
+        from django.db.models import Sum
         user_events = AnalyticsEvent.objects.filter(user=request.user)
         requests_count = user_events.count()
-        tokens_sum = sum(e.tokens_used for e in user_events)
-        cost_sum = sum(e.estimated_cost for e in user_events)
+        sums = user_events.aggregate(Sum('tokens_used'), Sum('estimated_cost'))
+        tokens_sum = sums['tokens_used__sum'] or 0
+        cost_sum = sums['estimated_cost__sum'] or 0.0
 
         # Retrieve invoices
         invoices = Invoice.objects.filter(user=request.user).order_by('-date')

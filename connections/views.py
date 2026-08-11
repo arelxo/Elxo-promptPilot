@@ -5,9 +5,6 @@ from rest_framework.permissions import IsAuthenticated
 from .models import ProviderConnection
 from django.utils import timezone
 import os
-import openai
-import anthropic
-import google.generativeai as genai
 
 class ConnectionsListView(APIView):
     permission_classes = [IsAuthenticated]
@@ -121,6 +118,7 @@ class TestConnectionView(APIView):
 
         try:
             if normalized == "OpenAI":
+                import openai
                 client = openai.OpenAI(api_key=api_key)
                 client.chat.completions.create(
                     model="gpt-3.5-turbo",
@@ -128,6 +126,7 @@ class TestConnectionView(APIView):
                     max_tokens=5
                 )
             elif normalized == "Claude":
+                import anthropic
                 client = anthropic.Anthropic(api_key=api_key)
                 client.messages.create(
                     model="claude-3-haiku-20240307",
@@ -135,6 +134,7 @@ class TestConnectionView(APIView):
                     messages=[{"role": "user", "content": "say ok"}]
                 )
             elif normalized == "Gemini":
+                import google.generativeai as genai
                 genai.configure(api_key=api_key)
                 model = genai.GenerativeModel("gemini-1.5-flash")
                 model.generate_content("say ok", generation_config=genai.types.GenerationConfig(max_output_tokens=5))

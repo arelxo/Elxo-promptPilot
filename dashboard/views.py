@@ -11,13 +11,13 @@ class DashboardAPIView(APIView):
         all_events = AnalyticsEvent.objects.filter(user=request.user)
         events = all_events.select_related('prompt').order_by('-created_at')[:5]
         
+        from django.db.models import Sum, Avg
         total_requests = all_events.count()
-        total_tokens = sum(e.tokens_used for e in all_events)
-        total_cost = sum(e.estimated_cost for e in all_events)
+        aggregates = all_events.aggregate(Sum('tokens_used'), Sum('estimated_cost'), Avg('latency_ms'))
         
-        avg_latency = 0
-        if total_requests > 0:
-            avg_latency = int(sum(e.latency_ms for e in all_events) / total_requests)
+        total_tokens = aggregates['tokens_used__sum'] or 0
+        total_cost = aggregates['estimated_cost__sum'] or 0.0
+        avg_latency = int(aggregates['latency_ms__avg'] or 0)
             
         success_events = all_events.filter(status="success").count()
         success_rate = 100.0
