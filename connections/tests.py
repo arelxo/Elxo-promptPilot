@@ -11,6 +11,15 @@ class ConnectionsAPITests(APITestCase):
     def setUp(self):
         self.user1 = User.objects.create_user(username="testuser1", email="testuser1@gmail.com", password="password123")
         self.user2 = User.objects.create_user(username="testuser2", email="testuser2@gmail.com", password="password123")
+        self.env_patcher = mock.patch.dict(os.environ, {
+            "OPENAI_API_KEY": "sk-test-openai",
+            "ANTHROPIC_API_KEY": "sk-test-anthropic",
+            "GEMINI_API_KEY": "sk-test-gemini"
+        })
+        self.env_patcher.start()
+
+    def tearDown(self):
+        self.env_patcher.stop()
 
     def test_unauthenticated_connections_get(self):
         url = reverse("connections-list")
