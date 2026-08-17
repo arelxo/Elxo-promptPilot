@@ -17,7 +17,7 @@ class PromptViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        return Prompt.objects.filter(
+        return Prompt.objects.select_related('owner').filter(
             owner=self.request.user
         ).order_by("-updated_at")
 
@@ -230,7 +230,7 @@ class PromptVersionViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        return PromptVersion.objects.filter(
+        return PromptVersion.objects.select_related('created_by').filter(
             created_by=self.request.user
         ).order_by("-version_number")
 
